@@ -8,6 +8,8 @@ Current human genome sequencing assays in both clinical and research settings pr
 
 ## Documentation
 
+### Release notes
+
 *   [ConnectedReads release notes](https://github.com/atgenomix/connectedreads/releases)
 
 ### Dependence
@@ -41,7 +43,6 @@ We'd like to specifically call out a few key ones:
 
 We thank all of the developers and contributors to these packages for their
 work.
-
 
 ## Disclaimer
 

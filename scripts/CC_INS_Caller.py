@@ -13,7 +13,7 @@
 #
 # @file    CC_INS_Caller.py
 #
-# @brief   Parsing BAM file to extract large Insertions for Connected-Reads and estmiate the amount of them
+# @brief   Parsing BAM file to extract large Insertions for Connected-Reads and estimate the amount of them
 #
 # @author  Chung-Tsai Su(chungtsai.su@atgenomix.com)
 #
