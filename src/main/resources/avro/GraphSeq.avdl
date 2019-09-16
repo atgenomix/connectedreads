@@ -1,0 +1,69 @@
+/*
+ * Copyright (C) 2017, Atgenomix Incorporated. All Rights Reserved.
+ * This program is an unpublished copyrighted work which is proprietary to
+ * Atgenomix Incorporated and contains confidential information that is not to
+ * be reproduced or disclosed to any other person or entity without prior
+ * written consent from Atgenomix, Inc. in each and every instance.
+ * Unauthorized reproduction of this program as well as unauthorized
+ * preparation of derivative works based upon the program or distribution of
+ * copies by sale, rental, lease or lending are violations of federal copyright
+ * laws and state trade secret laws, punishable by civil and criminal penalties.
+ */
+
+@namespace("com.atgenomix.connectedreads.formats.avro")
+protocol GraphSeq {
+
+/**
+ Record for describing suffix tree index, the data structure for
+ parallel processing suffix tree.
+ */
+record SuffixIndex {
+
+  /**
+   the common prefix this index belongs to. this is mostly used for data partitioning.
+   */
+  string prefix;
+
+  /**
+   two-bit encoded sequence data.
+   */
+  bytes sequence;
+
+  /**
+   the actual length of sequence.
+   */
+  int length;
+
+  /**
+   parent branching point in sequence, i.e. the second longest common prefix.
+   */
+  union {int, null} parentBp;
+
+  /**
+   child branching point in sequence, i.e. the first longest common prefix.
+   */
+  int childBp;
+
+  /**
+   true if this record also represents a leaf node.
+   */
+  boolean isLeaf;
+
+  /**
+   bit-encoded next sequence alphabets at childBp.
+   'A' => 0x01
+   'C' => 0x02
+   'G' => 0x04
+   'N' => 0x08
+   'T' => 0x10
+   '$' => 0x20
+   */
+  union {int, null} next;
+
+  /**
+   list of user-defined sequence positions.
+   */
+  union {array<long>, null} position = [];
+}
+
+}
