@@ -38,11 +38,11 @@ class ErrorCorrectionArgs extends Args4jBase with Serializable with GraphSeqArgs
   @Argument(required = true, metaVar = "OUTPUT", usage = "Output path", index = 1)
   override var output: String = _
 
-  @Args4jOption(required = true, name = "-pl_batch", usage = "Prefix length for number of batches [default=1]")
-  override var pl: Short = 1
+  @Args4jOption(required = true, name = "-pl_batch", usage = "Prefix length for number of batches [default=2]")
+  override var pl: Short = 2
 
-  @Args4jOption(required = true, name = "-pl_partition", usage = "Prefix length for number of partitions [default=7]")
-  override var pl2: Short = 7
+  @Args4jOption(required = true, name = "-pl_partition", usage = "Prefix length for number of partitions [default=6]")
+  override var pl2: Short = 6
 
   @Args4jOption(required = false, name = "-packing_size", usage = "The number of reads will be packed together [default = 100]")
   override var packing_size: Int = 100
@@ -51,8 +51,8 @@ class ErrorCorrectionArgs extends Args4jBase with Serializable with GraphSeqArgs
   @Args4jOption(required = false, name = "-mlcp", usage = "Minimal longest common prefix [default = 45]")
   override var minlcp: Int = 45
 
-  @Args4jOption(required = false, name = "-max_read_length", usage = "Maximal read length [default = 151]")
-  override var maxrlen: Int = 151
+  @Args4jOption(required = false, name = "-max_read_length", usage = "Maximal read length [default = 152]")
+  override var maxrlen: Int = 152
 
   @Args4jOption(required = false, name = "-stats", usage = "Enable to output statistics of String Graph to $OUTPUT/STATS")
   override var stats: Boolean = false
@@ -66,14 +66,14 @@ class ErrorCorrectionArgs extends Args4jBase with Serializable with GraphSeqArgs
   @Args4jOption(required = false, name = "-assign_N", usage = "whether to randeomly replace N base in reads with A/C/G/T base")
   override var assignN: Boolean = false
 
-  @Args4jOption(required = false, name = "-max_err_read", usage = "maximal reads having errors at a certain internal node")
-  var maxerrread: Int = 2
+  @Args4jOption(required = false, name = "-max_err_read", usage = "maximal reads having errors at a certain internal node [default=1]")
+  var maxerrread: Int = 1
 
-  @Args4jOption(required = false, name = "-min_read_support", usage = "minimal reads support for error identification at a certain internal node")
-  var minreadsupport: Int = 20
+  @Args4jOption(required = false, name = "-min_read_support", usage = "minimal reads support for error identification at a certain internal node [default=3]")
+  var minreadsupport: Int = 3
 
-  @Args4jOption(required = false, name = "-max_correction_ratio", usage = "maximal error over correction target base ratio for error identification at a certain internal node")
-  var maxcorratio: Double = 0.05
+  @Args4jOption(required = false, name = "-max_correction_ratio", usage = "maximal error over correction target base ratio for error identification at a certain internal node [default=0.5]")
+  var maxcorratio: Double = 0.5
 
   @Args4jOption(required = false, name = "-total_ploidy", usage = "total ploidy of input fastq file and reference files")
   var totalploidy: Int = 2
@@ -84,7 +84,7 @@ class ErrorCorrectionArgs extends Args4jBase with Serializable with GraphSeqArgs
   @Args4jOption(required = false, name = "-output_fastq", usage = "whether to dump all reads to fastq file")
   var outputFastq: Boolean = false
 
-  @Args4jOption(required = false, name = "-mim_err_depth", usage = "minimal depth of suffix tree where error will be reported")
+  @Args4jOption(required = false, name = "-mim_err_depth", usage = "minimal depth of suffix tree where error will be reported [default=40]")
   var minSufTreeDepth: Int = 40
 
   @Args4jOption(required = false, name = "-raw_err_group_len", usage = "range where raw error reports should be grouped as a single error event")
@@ -96,8 +96,8 @@ class ErrorCorrectionArgs extends Args4jBase with Serializable with GraphSeqArgs
   @Args4jOption(required = false, name = "-keep_err", usage = "whether to keep error report in tsv format")
   var keepErr: Boolean = false
 
-  @Args4jOption(required = false, name = "-seperate_err", usage = "seperate error")
-  var seperateErr: Boolean = false
+  @Args4jOption(required = false, name = "-seperate_err", usage = "separate error [default=true]")
+  var seperateErr: Boolean = true
 }
 
 case class ErrReport(readID: Long, rc: Boolean, errPos: Int, depth: Int, err: String, cor: String)

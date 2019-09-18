@@ -48,10 +48,10 @@ class StringGraphArgs extends Args4jBase with Serializable {
   var pl2: Short = 7
 
   @Args4jOption(required = false, name = "-rmdup", usage = "Remove duplication of reads")
-  var rmdup: Boolean = false
+  var rmdup: Boolean = true
 
   @Args4jOption(required = false, name = "-cache", usage = "Cache the reads in memory to speedup data processing")
-  var cached: Boolean = false
+  var cached: Boolean = true
 
   @Args4jOption(required = false, name = "-checkpoint_path", usage = "Checkpoint path",
     depends = { Array[String]("-cache") })
@@ -63,11 +63,11 @@ class StringGraphArgs extends Args4jBase with Serializable {
   @Args4jOption(required = false, name = "-packing_size", usage = "The number of reads will be packed together [default = 100]")
   var packing_size: Int = 100
 
-  @Args4jOption(required = false, name = "-mlcp", usage = "Minimal longest common prefix [default = 45]")
-  var minlcp: Int = 45
+  @Args4jOption(required = false, name = "-mlcp", usage = "Minimal longest common prefix [default = 85]")
+  var minlcp: Int = 85
 
-  @Args4jOption(required = false, name = "-max_read_length", usage = "Maximal read length [default = 151]")
-  var maxrlen: Int = 151
+  @Args4jOption(required = false, name = "-max_read_length", usage = "Maximal read length [default = 152]")
+  var maxrlen: Int = 152
 
   @Args4jOption(required = false, name = "-max_edges", usage = "Maximal number of edges per read [default = Integer.MAX_VALUE]")
   var maxrs: Int = Integer.MAX_VALUE

@@ -43,20 +43,20 @@ class AssemblyArgs extends Args4jBase with Serializable
   @Args4jOption(required = false, name = "-input_format", usage = "input format of vertices/edges [ASQG | PARQUET]")
   var inputFormat: String = "PARQUET"
 
-  @Args4jOption(required = false, name = "-small_steps", usage = "Small steps")
-  var smallSteps: Int = 10
+  @Args4jOption(required = false, name = "-small_steps", usage = "Small steps [default=5]")
+  var smallSteps: Int = 5
 
-  @Args4jOption(required = false, name = "-big_steps", usage = "Big steps")
-  var bigSteps: Int = 10
+  @Args4jOption(required = false, name = "-big_steps", usage = "Big steps [default=400]")
+  var bigSteps: Int = 400
 
-  @Args4jOption(required = false, name = "-mod", usage = "Modulo for choosing vertices with label B")
-  var mod: Int = 10
+  @Args4jOption(required = false, name = "-mod", usage = "Modulo for choosing vertices with label B [default=3]")
+  var mod: Int = 3
 
-  @Args4jOption(required = false, name = "-ee", usage = "Bloom filter expected elements")
-  var expectedElements: Int = 20
+  @Args4jOption(required = false, name = "-ee", usage = "Bloom filter expected elements [default=40]")
+  var expectedElements: Int = 40
 
-  @Args4jOption(required = false, name = "-fpp", usage = "Bloom filter false positive rate")
-  var falsePositiveRate: Double = 0.01
+  @Args4jOption(required = false, name = "-fpp", usage = "Bloom filter false positive rate [default=0.001]")
+  var falsePositiveRate: Double = 0.001
 
   @Args4jOption(required = false, name = "-denoise_len", usage = "Denoise by contig length")
   var denoiseLen: Int = 151
@@ -74,13 +74,13 @@ class AssemblyArgs extends Args4jBase with Serializable
   var ploidy: Int = 2
 
   @Args4jOption(required = false, name = "-degree_profiling", usage = "Degree profiling")
-  var degreeProfiling: Boolean = false
+  var degreeProfiling: Boolean = true
 
   @Args4jOption(required = false, name = "-one_to_one_profiling", usage = "One-to-one profiling")
   var oneToOneProfiling: Boolean = false
 
-  @Args4jOption(required = false, name = "-partition", usage = "Pairing partition")
-  var partition: Int = 200
+  @Args4jOption(required = false, name = "-partition", usage = "Pairing partition [default=2100]")
+  var partition: Int = 2100
 }
 
 class AssemblyDriver(val args: AssemblyArgs) extends Serializable with SparkCommand[AssemblyArgs] {

@@ -20,10 +20,10 @@ object GraphSeqMain {
       CommandGroup(
         "PREPROCESSING OPERATIONS",
         List(
-          Fasta2GDF,
+//          Fasta2GDF,
           StringGraphDriver,
-          ErrorCorrectionDriver,
-          SuffixIndexDriver
+          ErrorCorrectionDriver //,
+//          SuffixIndexDriver
         )
       ),
       CommandGroup(
