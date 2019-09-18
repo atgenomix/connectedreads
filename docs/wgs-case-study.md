@@ -37,8 +37,9 @@ To simply the interface of the command line, please set the following environmen
 
 ```
 JAR_FOLDER=/seqslab
-ADAM_JAR=$JAR_FOLDER}/adam-assembly-1.0.0-qual.jar
+ADAM_JAR=${JAR_FOLDER}/adam-assembly-1.0.0-qual.jar
 CONNECTEDREADS_JAR=${JAR_FOLDER}/connectedreads-1.0.0.jar
+CONNECTEDREADS_FOLDER=/usr/local/connectedreads
 READ1=./NA19240/SRR7782669_pass_1.fastq.gz
 READ2=./NA19240/SRR7782669_pass_2.fastq.gz
 HDFS_OUTPUT=./NA19240
@@ -58,7 +59,7 @@ OUTPUT_FASTQ=./NA19240/SRR7782669_ConnectedReads.fastq.gz
 ### Data Uploader
 
 ```
-python3 ./script/fq_upload.py -1 ${READ1} -2 ${READ2} -o ${CHUNK_FOLDER}
+python3 ${CONNECTEDREADS_FOLDER}/script/fq_upload.py -1 ${READ1} -2 ${READ2} -o ${CHUNK_FOLDER}
 ```
 
 There are 408 SNAPPY files generated from NA19240 and its volume is around 47.8 GB. 
@@ -113,10 +114,10 @@ Then, the chucked FASTQ files are transformed to ADAM parquet files.
 
 ```
 user@server# hadoop fs -du -h ${ADAM_FOLDER}
-59.3 G   NA19240/adam./dev-all
-123.6 M  NA19240/adam./dev-all_LCfiltered
-3.2 G    NA19240/adam./dev-all_LQfiltered
-32.6 M   NA19240/adam./dev-all_Nfiltered
+59.3 G   NA19240/adam/dev-all
+123.6 M  NA19240/adam/dev-all_LCfiltered
+3.2 G    NA19240/adam/dev-all_LQfiltered
+32.6 M   NA19240/adam/dev-all_Nfiltered
 ```
 
 ### ConnectedReads
@@ -246,3 +247,5 @@ Finally, the Haplotype-sensitive contigs of NA19240 is generated.
 root@cgbs:/seqslab/atsai/script# ls -al ${OUTPUT_FASTQ}
 -rw-r--r-- 1 user        user         8155698350 Aug  3 18:54 SRR7782669_ConnectedReads.fastq.gz
 ```
+
+**NOTE:** The number of contigs and filesize might have slight differences due to randomly duplication removal. 

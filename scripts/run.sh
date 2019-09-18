@@ -2,8 +2,9 @@
 
 SPARK=/usr/local/spark
 SPARK_MASTER=server
+CONNECTEDREADS_FOLDER=/usr/local/connectedreads
 JAR_FOLDER=/seqslab
-ADAM_JAR=$JAR_FOLDER}/adam-assembly-1.0.0-qual.jar
+ADAM_JAR=${JAR_FOLDER}/adam-assembly-1.0.0-qual.jar
 CONNECTEDREADS_JAR=${JAR_FOLDER}/connectedreads-1.0.0.jar
 READ1=./NA19240/SRR7782669_pass_1.fastq.gz
 READ2=./NA19240/SRR7782669_pass_2.fastq.gz
@@ -18,7 +19,11 @@ HSA_CHECKPOINT_FOLDER=${HDFS_OUTPUT}/hsa-checkpoint
 TMP_FOLDER=${HDFS_OUTPUT}/tmp
 OUTPUT_FASTQ=./NA19240/SRR7782669_ConnectedReads.fastq.gz
 
-python3 ./script/fq_upload.py -1 ${READ1} -2 ${READ2} -o ${CHUNK_FOLDER}
+hadoop fs -rm -r ${CHUNK_FOLDER}
+
+python3 ${CONNECTEDREADS_FOLDER}/script/fq_upload.py -1 ${READ1} -2 ${READ2} -o ${CHUNK_FOLDER}
+
+hadoop fs -rm -r ${ADAM_FOLDER}
 
 ${SPARK}/bin/spark-submit \
    --master spark://${SPARK_MASTER}:7077 \
@@ -46,6 +51,8 @@ ${SPARK}/bin/spark-submit \
    -max_lq_base 25 \
    -max_N_count 0 \
    ${CHUNK_FOLDER} ${ADAM_FOLDER}
+
+hadoop fs -rm -r ${EC_FOLDER}
 
 ${SPARK}/bin/spark-submit \
    --master spark://${SPARK_MASTER}:7077 \
@@ -80,6 +87,7 @@ ${SPARK}/bin/spark-submit \
 
 
 hadoop fs -rm -r ${SG_CHECKPOINT_FOLDER}
+hadoop fs -rm -r ${SG_FOLDER}
 
 ${SPARK}/bin/spark-submit \
    --master spark://${SPARK_MASTER}:7077 \
@@ -104,6 +112,7 @@ ${SPARK}/bin/spark-submit \
 
 hadoop fs -rm -r ${TMP_FOLDER}
 hadoop fs -rm -r ${HSA_CHECKPOINT_FOLDER}
+hadoop fs -rm -r ${HSA_FOLDER}
 
 ${SPARK}/bin/spark-submit \
   --master spark://${SPARK_MASTER}:7077 \
@@ -146,4 +155,5 @@ ${SPARK}/bin/spark-submit \
   -force_load_parquet ${HSA_FOLDER}/result
   ${HSA_FOLDER}/fastq
 
+rm -rf ${OUTPUT_FASTQ}
 hadoop fs -text  ${HSA_FOLDER}/fastq/*.snappy | gzip -1 - > ${OUTPUT_FASTQ}
