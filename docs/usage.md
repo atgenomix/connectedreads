@@ -11,7 +11,6 @@ Argument:
 	-o: Output tsv list
 Usage:
 	./fq_upload.py -1 ~/NA19240/SRR7782669_same_r1.fq.gz -2 ~/NA19240/SRR7782669_same_r2.fq.gz -o /NA19240/chunk.fq
-	
 ```
 
 ## Parallel Data Transformation by Adam
@@ -135,7 +134,6 @@ PREPROCESSING OPERATIONS
 
 ASSEMBLY OPERATIONS
             assemble : assemble Illumina whole reads via read overlap, read pair, barcode index
-
 ```
 
 ### Parallel Error Correction

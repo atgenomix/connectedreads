@@ -18,7 +18,7 @@ Current human genome sequencing assays in both clinical and research settings pr
 
 ### Quick start and Case studies
 
-*   [Installation](docs/installation.md)
+*   [Quick Start](docs/installation.md)
 *   [Usage](docs/usage.md)
 
 *   [ConnectedReads WGS case study](docs/wgs-case-study.md)
