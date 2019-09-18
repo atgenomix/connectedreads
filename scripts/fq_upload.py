@@ -68,9 +68,7 @@ SEQSLAB_LOCAL_CORE_FOLDER = os.path.join(SEQSLAB_LOCAL_ARTEMIS_FOLDER, 'core')
 SEQSLAB_USER = 'root' # 'artemis'
 SEQSLAB_GROUP = 'root' # 'artemis'
 
-
 logger = logging.getLogger('chunkwise_logger')
-
 sys.path.append('/usr/local/seqslab/artemis')
 
 LOG_LEVEL = logging.WARNING    ##DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -622,17 +620,8 @@ class FastqChunkwiseChopNUploader:
             read_str = 'r2'
         while True:
             eof, content = input_handle[pair_idx].read()
-            # shortfall_length = self.fastq_txt_chunk_size - written_length
-            # len(content) > shortfall_length => reach current chunk length threshold, and find the
-            # chunk-segmentation at the start of the 1st read right after content[:shortfall_length]
             shortfall_length = file_length - written_length[pair_idx]
 
-            # CONTENT_BUFFER_SIZE is a buffer size of content, which is set to be 10240,
-            # to guarantee that content is at least 10240 characters longer than shortfall_length for the following
-            # split point search operation.
-            # CONTENT_BUFFER_SIZE should be configurable based on size of reads.
-            # For Illumina short reads scenario, CONTENT_BUFFER_SIZE can be set to 512 since size of Illumina
-            # short reads rarely exceeds 300 byte.
             if pair_idx == 0 and len(content) > shortfall_length + CONTENT_BUFFER_SIZE:
                 logger.debug('split pos identification for handle #{}, len(content) {} shortfall_length {}'.format(
                     pair_idx, len(content), shortfall_length))
@@ -651,14 +640,6 @@ class FastqChunkwiseChopNUploader:
                 logger.debug('written file length {} last read name {}'.format(file_length, last_read_name))
                 return False, file_length, last_read_name
 
-            # r2 split file
-            # for pair_2, create a search space for split point, with length ~ 2 * PAIRED_TWO_SEARCH_LENGTH
-            #
-            #
-            # |<   PAIRED_TWO_SEARCH_LENGTH   >|<   PAIRED_TWO_SEARCH_LENGTH   >|
-            # |--------------------------------|--------------------------------|
-            #                  content for split_point search
-            #
             elif pair_idx == 1 and shortfall_length < PAIRED_TWO_SEARCH_SCOPE:
                 eof2, content2 = input_handle[pair_idx].read(2 * PAIRED_TWO_SEARCH_SCOPE)
 
@@ -672,8 +653,6 @@ class FastqChunkwiseChopNUploader:
                     out_f[pair_idx].write(content)
                     return True, written_length[pair_idx], None
 
-                # this implementation doesn't require sorted read coordinate, but finds split point on pair2
-                # within a buffer range 2 * PAIRED_TWO_SEARCH_LENGTH centered at split point of pair1
                 split_point = self.find_pair2_split_pos(content, shortfall_length, pair1_last_read_name)
 
                 if split_point == -1:
@@ -739,6 +718,9 @@ class FastqChunkwiseChopNUploader:
     def find_pair2_split_pos(self, content, pos, pair1_last_read_name):
         logger.debug('pair1 coordinate str -- {}'.format(pair1_last_read_name))
         pair1_read_coord_str = re.split('[/ ]', pair1_last_read_name)[0]
+        ## read1 : @SRR7782669.1.1 1 length=151
+        ## read2 : @SRR7782669.1.2 1 length=151
+        pair1_read_coord_str = pair1_read_coord_str[:-1]
         logger.debug('pair1 coordinate str -- {}'.format(pair1_read_coord_str))
         needle = bytearray(pair1_read_coord_str, 'utf-8')
 
@@ -906,7 +888,7 @@ def usage():
     return
 
 
-def uploader(i1file, i2file, ofolder):
+def fq_upload(i1file, i2file, ofolder):
     uploader = FastqChunkwiseChopNUploader([i1file, i2file], ofolder)
     uploader.run()
     return
@@ -957,7 +939,7 @@ def main(argv):
         sys.exit(4)
 
     # Main Function
-    uploader(i1file, i2file, ofolder)
+    fq_upload(i1file, i2file, ofolder)
 
     return
 
