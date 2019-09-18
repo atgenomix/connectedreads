@@ -56,14 +56,6 @@ object GraphUtils {
         multi = multi))
     }
 
-    // remove unnecessary pair
-    //
-    //          / -\- C --- \
-    // A ---> B               o
-    //          \ -\- D --- /
-    //
-    // if ReadTriplet ABC and ABD are broken, then should only exist Pair AB, Pair BC and Pair BD
-    // should not exist Pair -1B(single vertex pair)
     def toBrokenPairs(brokenType: Byte, score: Long, triplet: ReadTriplet, multi: Boolean): List[Pair] = {
       brokenType match {
         case BROKEN_TAIL => brokenTail(score, triplet, multi: Boolean)
@@ -300,17 +292,6 @@ object GraphUtils {
       graph
     }
 
-    //  the reason to make in-degree 0 out-degree 2 as PS
-    //  if it's S, consider the following situation:
-    //    B -> B ->
-    //   /
-    //  S
-    //   \
-    //    B -> B ->
-    //
-    //  the startIds of the 2 branch will be the same, then it will only assemble one contig but should be 2
-    //
-    // vertex output: (id: Long, inDegree: Int, outDegree: Int, label: Byte)
     def label(): GraphFrame = {
       val label = (inDegree: Int, outDegree: Int) => (inDegree, outDegree) match {
         case (0, 1) => LABEL_S
@@ -327,12 +308,6 @@ object GraphUtils {
       GraphFrame(v, graph.edges)
     }
 
-    // 1. PS will propagate S to its dst and make itself to T
-    // 2. PT will propagate T to its src and make itself to PT
-    // 3. PT/PS will propagate S to its dst and T to its src and make itself to PT
-    // 4. N-to-1 vertex should be labeled as S (to do so due to N-to-1 and 1-to-N can be merged if they are adjacent
-    // 5. 1-to-N should be labeled as T
-    // vertex output: (id: Long, label: Byte)
     def propagation(): GraphFrame = {
       val AM = AggregateMessages
 
@@ -505,9 +480,6 @@ object GraphUtils {
       }
     }
 
-    // input vertex: (id: Long, label: String, start: Long, overlapLen: Int, rank: Int)
-    // seqVertices: (id: Long, firstSeq: String, firstReads: Seq[Long], qual: String)
-    // output vertex: (reads: Seq[Long], seq: String, qual: String, label: String, id: Long, endId: Long)
     private def assembleReads(seqVertices: DataFrame)
                              (assembleFunc: ((StringBuilder, StringBuilder, Byte, Long), RankedVertex) => (StringBuilder, StringBuilder, Byte, Long))
                              (implicit spark: SparkSession): GraphFrame = {
@@ -542,19 +514,9 @@ object GraphUtils {
       GraphFrame(contigs, graph.edges)
     }
 
-    // input vertex: (id: Long, label: String, start: Long, overlapLen: Int, rank: Int)
-    // edge output: (src: Long, dst: Long, overlapLen: Int)
     def updateEdges()(implicit spark: SparkSession): GraphFrame = {
       val e = graph.triplets
         .filter(col("dst.start") === col("dst.id") or
-          // 2 situations should be considered
-          // case 1:
-          // T ---+             +---> S
-          // T ---+---> PT/PS --+---> S
-          // T ---+             +---> S
-          // PT/PS will be PT after propagation
-          // case 2:
-          // src and dst are PS and PT, after label propagation they are both PT
           col("src.label") === LABEL_PT or
           col("dst.label") === LABEL_PT)
         .select(col("src.start").as(SRC),
@@ -595,8 +557,6 @@ object GraphUtils {
     }
 
     def relabel(): GraphFrame = {
-      // N-to-1 and 1-to-N vertices are labeled as S and T respectively,
-      // thus we need to relabeled as PT/PS for pairReads()
       val label = graph.degree().label().vertices
       val v = graph.vertices.drop(LABEL).join(label, Seq(GraphFrame.ID), "left")
 
@@ -626,8 +586,6 @@ object GraphUtils {
       GraphFrame(v.toDF(), graph.edges)
     }
 
-    // connectReads() will start from S and stop at T
-    // Thus we have to propagate PS and PT info to T and S respectively
     def pairPreprocess(intersection: Long, diploid: Int): (GraphFrame, DataFrame) = {
       import spark.implicits._
       val vertexEncoder = Encoders.product[OneToOneVertex]
@@ -892,16 +850,12 @@ object GraphUtils {
     }
       .toTraversable
 
-    // for each in-degree edge select an highest score output edge
     val highestScore = pairs.maxBy(i => i._1._1.isEmpty -> i._1._2)(Ordering.Tuple2(Ordering.Boolean, Ordering.Long))
 
     List(highestScore)
   }
 
   def genPairsByPloidy(triplets: Iterator[((Option[Byte], Long), ReadTriplet)], ploidy: Int, multi: Boolean): Iterable[Pair] = {
-    // tha max # of paired pairs for each PT/PS is args.ploidy
-    // sorted by intersection # and overlap len then choose the first `ploidy` pairs
-    // other pairs should be broken
     val pairsGroup = triplets.toArray
       .sortBy{ case ((_, score), t) => score -> t.overlapLen1 }(Ordering.Tuple2(Ordering.Long.reverse, Ordering.Int.reverse))
       .splitAt(ploidy)
@@ -923,10 +877,6 @@ object GraphUtils {
     ds.groupByKey(_.out)
       .flatMapGroups { case (out, iter) =>
         val pairs = iter.toList
-        // this kind of pairs will be the end of contig, no necessary to be trigger point
-        // a -+
-        //    |--> b -> -1
-        // c -+
         if (pairs.length == 1 || out._2 == -1) {
           pairs
         } else {

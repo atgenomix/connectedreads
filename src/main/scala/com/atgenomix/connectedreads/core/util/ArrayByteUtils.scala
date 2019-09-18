@@ -151,10 +151,6 @@ object ArrayByteUtils {
     (array, (slen + 1).toShort)
   }
   
-  // convert the given string into Array[Byte]; and each byte contains two chars.
-  // for odd-characters cases, the tail naturally implies the `$`; and even cases
-  // will add one more byte with zero value to represents the dollar sign.
-  // So in our usage scenario, the encoded array must end up with a `$`.
   def encode4bit(s: String): Array[Byte] = {
     val array = new Array[Byte]((s.length / 2) + 1)
     for (i <- 0 until s.length by 2) {
@@ -188,9 +184,6 @@ object ArrayByteUtils {
     array
   }
   
-  // The goal is to compress to chars into a byte, i.e., each char takes 4-bits space.
-  // Therefore, we assign the corresponding values for `A C G T N $`.
-  // e.g., A => 0001, AA => 0001 0001, TA => 0100 0001
   private def char2ToByte(c: Char@switch): Byte = c match {
     case '$' => 0
     case 'A' => 1

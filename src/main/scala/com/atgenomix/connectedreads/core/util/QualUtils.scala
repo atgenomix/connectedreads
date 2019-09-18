@@ -1,7 +1,6 @@
 package com.atgenomix.connectedreads.core.util
 
 object QualUtils {
-  // from adam/adam-cli/src/main/scala/org/bdgenomics/adam/cli/AtgxReadsDupCollapse.scala
   val qualMin = 33
   val qualMax = 74
   val qLevel: Array[Int] = Array[Int](

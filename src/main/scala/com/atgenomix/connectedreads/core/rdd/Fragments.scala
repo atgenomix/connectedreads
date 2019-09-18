@@ -27,8 +27,6 @@ case class Fragments(@transient spark: SparkSession, fragments: DataFrame) {
     val encoded = ff match {
       case FASTA =>
         fragments.mapPartitions(df => SegmentFactory[Segmenter](ff)(df, querylength).segment)
-          // KeyValueGroupedDataset.reduceGroups should support partial aggregation
-          // https://issues.apache.org/jira/browse/SPARK-16391
           .groupByKey(_._1)
           .reduceGroups((x, y) => (x._1, combine(x._2, y._2)))
           .map(_._2.swap)

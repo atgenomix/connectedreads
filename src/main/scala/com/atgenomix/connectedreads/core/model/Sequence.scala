@@ -320,23 +320,6 @@ case class TwoBitIndexedSeq(
     i.toShort
   }
 
-  // Assume the length of all reads are the same, so we can check the offset
-  // of the first element of position in Rj
-  //
-  //                    80              140
-  //                    |                |
-  //  RS ---------------|----------------|,$
-  //                    |================|==================== RP
-  //                    0             <- 60
-  //
-  //  def isProperPrefix(that: Sequence): Boolean = {
-  //    // cal. the index to trace the RS in backward direction
-  //    // RS.L = RS.length - 1 + RS.offset (0xFFFF)
-  //    // d = RS.L - RS.offset = RS.length - 1
-  //    var d = this.length - 1 - 1 // 1: $, 1=> 0-base
-  //    while (d >= 0 && this.codePointAt(d) == that.codePointAt(d)) d -= 1
-  //    if (d < 0) true else false
-  //  }
   def isProperPrefix(that: TwoBitIndexedSeq, prefix: Int): Boolean = {
     var res: Boolean = true
     val end: Int = this.length / 4

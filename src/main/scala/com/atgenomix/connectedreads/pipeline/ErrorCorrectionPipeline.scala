@@ -276,22 +276,7 @@ class ErrorCorrectionPipeline(@transient val spark: SparkSession, args: ErrorCor
     var t1 = System.currentTimeMillis()
     val lcp = SuffixTree
       .indexSuffixArrayAndSort(sss, (args.pl + args.pl2).toShort)
-      //.toArray
 
-    //if (args.profiling)
-    //  writeProfilingInfo(
-    //    s"$padBatch\t$padPart\tCompute LCP array with size ${lcp.length} Runtime: ${System.currentTimeMillis() - t1} ms\n",
-    //    Paths.get(pfDir, "profiling", s"$padBatch-$padPart-profiling-generateST-01-LCP").toString)
-
-    // 2nd sort
-    //t1 = System.currentTimeMillis()
-    //val slcp = lcp.sortWith(SuffixTree.compareIS)
-
-    //if (args.profiling)
-    //  writeProfilingInfo(
-    //    s"$padBatch\t$padPart\tSort LCP array with size ${slcp.length} Runtime: ${System.currentTimeMillis() - t1} ms\n",
-    //    Paths.get(pfDir, "profiling", s"$padBatch-$padPart-profiling-generateST-02-2ndsort").toString)
-  
     val readIDMatrix = Array.ofDim[ArrayBuffer[Long]](args.maxrlen, 5)
   
     // initialize readIDMatrix
@@ -323,30 +308,6 @@ class ErrorCorrectionPipeline(@transient val spark: SparkSession, args: ErrorCor
     val errReport = ArrayBuffer.empty[ErrorEntry]
     
     def posEncode(entry: TwoBitIndexedSeq, rcMask: Long, offsetMask: Long, nameMask: Long, nameBitLen: Int): ArrayBuffer[Long] = {
-      //
-      // use the long data structure in TwoBitIndexedSeq.pos to do error position encoding
-      // original pos data encoding, with read length, offset (16 bits encoded in pos data structure using offsetMask),
-      // and length (suffix length)
-      //
-      // |   offset   |      length      |
-      // |------------x------------------|
-      // |          read_length          |
-      //
-      // new encoding for forward strand:
-      // use offset field to record position from read start to p1, i.e. offset + p1
-      //
-      // |            |      length      |
-      // |  offset    |  p1   |          |
-      // |--------------------x----------|
-      //start                          end
-      //
-      // new encoding for reverse strand:
-      // use offset field to record position from read end to p1, i.e. (length - 1) - p1
-      // |       length       |  offset  |
-      // |            |  p1   |          |
-      // |------------x------------------|
-      // end                           start
-      //
       entry.pos
         .withFilter(x => (x & refReadMask) == 0) // filter out pooled refReads
         .map(x => {
@@ -440,25 +401,6 @@ class ErrorCorrectionPipeline(@transient val spark: SparkSession, args: ErrorCor
     }
 
     def updatePaPos(entry: TwoBitIndexedSeq): Array[Long] = {
-      //
-      // for forward strand sequence, update offset, previously updated as offset + p1 in posEncode stage,
-      // to offset_origin + pa.  As such, offset is updated as: offset - (p1 - pa)
-      // for reverse complement strand sequence, update offset, previously updated as length - p1 in posEncode stage,
-      // to length - pa.  As such, offset is updated as: offset + (p1 - pa)
-      //
-      // new encoding for forward strand:
-      //
-      // |            |      length      |
-      // |  offset    |  pa   |          |
-      // |--------------------x----------|
-      //start                          end
-      //
-      // new encoding for reverse strand:
-      // |       length       |  offset  |
-      // |            |  pa   |          |
-      // |------------x------------------|
-      // end                           start
-      //
       readIDMatrix(entry.p1)
         .flatMap(a => {
           a.map(r => {
@@ -470,8 +412,6 @@ class ErrorCorrectionPipeline(@transient val spark: SparkSession, args: ErrorCor
         })
     }
 
-    // collect readID at p1 level, wherein offset field in l.pos is encoded to indicate p1 position,
-    // i.e. potential error occurring position
     var entry: TwoBitIndexedSeq = null
     lb foreach (x => {
       if (entry == null) {
@@ -486,10 +426,6 @@ class ErrorCorrectionPipeline(@transient val spark: SparkSession, args: ErrorCor
       }
     })
 
-    // error detection logic
-    // only the first 4 elements corresponding to A, C, G, and T branches of ctable and readIDMatrix
-    // are going to be considered in findError function; the last $ branch will only be considered as $ ending
-    // entries in the p1 to pa propagation stage
     findError(entry)
 
     // propagate readID at p1 level to pa level
@@ -529,8 +465,6 @@ class ErrorCorrectionPipeline(@transient val spark: SparkSession, args: ErrorCor
   private def readLevelGroup(hm: mutable.HashMap[(Long, Int, String, String), (Array[Int], Array[Int])],
                      groupLen: Int):
   ArrayBuffer[Array[((Long, Int, String, String), (Array[Int], Array[Int]))]] = {
-    // error report grouping based on error position, where error reports with position within args.rawErrGroupLen
-    // will be considered as a single error event, could be insertion, deletion, or even tricky subsitution
     val errGroup = ArrayBuffer.empty[Array[((Long, Int, String, String), (Array[Int], Array[Int]))]]
     val sortedKey = hm.keySet.toArray.sortBy(_._2)
     var startPos = sortedKey.head._2
@@ -554,47 +488,6 @@ class ErrorCorrectionPipeline(@transient val spark: SparkSession, args: ErrorCor
   private def readLevelReport(errGroup: ArrayBuffer[Array[((Long, Int, String, String), (Array[Int], Array[Int]))]],
                               rawErrCutoff: Int):
   ArrayBuffer[ErrorEntry] = {
-    // handle SNV error only - select errGroup with all error reports corresponding to identical errorPos
-    // could be extended to handle INDEL error by removing this filter condition
-    // TODO: utilize rc, depth, errPos information of rawErrReport to identify readLevel error with more sophisticated logic, e.g.
-    //    * utilize fwd/rev rawErrReports to do error verification
-    //    * identify indel error based on certain errPos and rc signature -
-    ///////////////////////////////////////////////////////////////////////////////
-    //    insertion case:
-    //    fwd strand:                   rawErr:
-    //         100                        ID    rc    errPos  ref   alt
-    //          |
-    //       ...AAAATTCCCC...             55    False 105     C     T
-    //               ^
-    //       ...AAAATCCCCC...
-    //       ...AAAATCCCCC...
-    //
-    //    rev strand:                   rawErr:
-    //                  110               ID    rc    errPos  ref   alt
-    //                   |
-    //       ...AAATTCCCCC..              55    True  103     A     T
-    //             ^
-    //       ...AAAATCCCCC...
-    //       ...AAAATCCCCC...
-    //
-    ///////////////////////////////////////////////////////////////////////////////
-    //    deletion case:
-    //    fwd strand:                   rawErr:
-    //         110                        ID    rc    errPos  ref   alt
-    //          |
-    //       ...CAAxTCCCCC...             66    False 103     A     T
-    //             ^
-    //       ...CAAATCCCCC...
-    //       ...CAAATCCCCC...
-    //
-    //    rev strand:                   rawErr:
-    //                  120               ID    rc    errPos  ref   alt
-    //                   |
-    //        ...CAATCCCCC..              66    True  102     A     C
-    //             ^
-    //       ...CAAATCCCCC...
-    //       ...CAAATCCCCC...
-    ///////////////////////////////////////////////////////////////////////////////
     errGroup
       .flatMap(gp => {
         var i = 1

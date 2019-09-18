@@ -15,21 +15,8 @@ package com.atgenomix.connectedreads.core.util
 import org.apache.commons.math3.special.Gamma
 
 object StatsUtils {
-  // Taken from samtools 0.1.18 (r982:295)
-  // This program is implemented with ideas from this web page:
-  //       http://www.langsrud.com/fisher.htm
-  
-  /*
-   n11  n12  | n1x
-   n21  n22  | n2x
-   ----------+----
-   nx1  nx2  | n
-   */
-  
-  // (n11, n1x, nx1, n, probability)
   type HgAccT = (Int, Int, Int, Int, Double)
   
-  // (left, right, two-tail, probability)
   type FisherExactTest = (Double, Double, Double, Double)
   
   private def logBinomial(n: Int, k: Int): Double = {

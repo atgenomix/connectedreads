@@ -27,20 +27,13 @@ object SuffixUtils {
   }
 
   def suffix(s: String, p: Long, pl: Int, min: Int): Iterator[(Array[Byte], (Long, Array[Short], Short))] = {
-    // format: (seq, pos, idx, offset[], length that $ included), seq(s) and pos(p) are given arguments
     val map = scala.collection.mutable.LongMap.empty[((Array[Byte], Short), Long, Int, ArrayBuffer[Short])]
-    // the idx begins at the leftmost character and continues character by character,
-    // from left to right, then generates the prefix to identify occurrence (offset) in the seq.
-    // for example, the seq `AATAATGAATGATG$` with prefix length be set to 3:
-    // the key `AAT` be created and the first occurrence in seq is 0.
     var idx = 0
     while (s.length - idx >= min) {
       val prefix = _prefidx(s, idx, idx + pl)
       if (map.contains(prefix)) {
-        // update the position of occurrences
         map(prefix)._4 += (idx - map(prefix)._3).toShort
       } else {
-        // p will plus the idx to reflect the shift variables
         map += (prefix, (encode(s, idx), p + idx, idx, ArrayBuffer[Short](0)))
       }
       idx += 1
