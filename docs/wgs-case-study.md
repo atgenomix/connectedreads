@@ -154,9 +154,6 @@ ${SPARK}/bin/spark-submit \
   -raw_err_cutoff 1 \
   -seperate_err
   
-  
-hadoop fs -rm -r ${SG_CHECKPOINT_FOLDER}
-
 ${SPARK}/bin/spark-submit \
    --master spark://${SPARK_MASTER}:7077 \
     --class com.atgenomix.connectedreads.cli.GraphSeqMain \
@@ -178,9 +175,6 @@ ${SPARK}/bin/spark-submit \
     -checkpoint_path ${SG_CHECKPOINT_FOLDER} \
     -max_read_length 151
     
-hadoop fs -rm -r ${TMP_FOLDER}
-hadoop fs -rm -r ${HSA_CHECKPOINT_FOLDER}    
-
 ${SPARK}/bin/spark-submit \
   --master spark://${SPARK_MASTER}:7077 \
   --class com.atgenomix.connectedreads.cli.GraphSeqMain  \
