@@ -107,7 +107,7 @@ class ErrorCorrectionDriver(val args: ErrorCorrectionArgs) extends Serializable 
   // output folder path
   val _rawErrFolder = "RAWERR"
   val _rlErrFolder = "ERR"
-  val _targetFqFolder = "TARGET.FQ.ADAM"
+  //val _targetFqFolder = "TARGET.FQ.ADAM"
   val _corFqFolder = "COR.FQ.ADAM"
   val _statisticFolder = "STATS"
   val _fqFolder = "IN.FQ.TEXT"

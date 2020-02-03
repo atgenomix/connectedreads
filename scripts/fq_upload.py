@@ -720,7 +720,8 @@ class FastqChunkwiseChopNUploader:
         pair1_read_coord_str = re.split('[/ ]', pair1_last_read_name)[0]
         ## read1 : @SRR7782669.1.1 1 length=151
         ## read2 : @SRR7782669.1.2 1 length=151
-        pair1_read_coord_str = pair1_read_coord_str[:-1]
+        if pair1_read_coord_str[-2:-1] == ".":
+            pair1_read_coord_str = pair1_read_coord_str[:-1]
         logger.debug('pair1 coordinate str -- {}'.format(pair1_read_coord_str))
         needle = bytearray(pair1_read_coord_str, 'utf-8')
 

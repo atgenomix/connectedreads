@@ -1,6 +1,5 @@
 package com.atgenomix.connectedreads.core.util
 
-import bloomfilter.mutable.BloomFilter
 import com.atgenomix.connectedreads.core.util.AssembleUtils._
 import com.atgenomix.connectedreads.core.util.LabelUtils._
 import com.atgenomix.connectedreads.core.util.QualUtils.{decodeQual, mergeQualAndDepth}
@@ -805,13 +804,6 @@ object GraphUtils {
       id & BLOOM_FILTER_ENCODE_MASK
     }
 
-    def score[T](a: BloomFilter[T], b: BloomFilter[T]): Long = {
-      val intersection = a.intersect(b)
-      val count = intersection.approximateElementCount()
-
-      intersection.dispose()
-      count
-    }
 
     def validate(score1: Long, scoreJ: Long, score2: Long, intersection: Long, overlapLen1: Int, overlapLen2: Int, overlapLen: Int): (Option[Byte], Long) = {
       def boolean2Int(b: Boolean): Int = if (b) 1 else 0

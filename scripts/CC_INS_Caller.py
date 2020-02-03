@@ -37,7 +37,7 @@ DIVISOR = 100
 
 # Default Parameter
 MIN_LENGTH = 50
-MIN_OFFSET = 100
+MIN_OFFSET = 400
 MIN_MAPQ = 60
 
 
@@ -53,8 +53,12 @@ def usage():
     print("\t-o: Output VCF file")
     print("Usage:")
     print(
-        "\tpython3 ./CC_INS_Caller.py -i ~/NA12878-novaseq/v1.0.2/result-1.0.2-qual-fix-6.primary_alt.sorted.bam "
-        "-l %d -f %d -q %d -o ~/NA12878-novaseq/v1.0.2/result-1.0.2-qual-fix-6.primary_alt.sorted.vcf" %
+        "\tpython3 ./CC_INS_Caller.py -i ~/NA12878-novaseq/v1.0.2/result-1.0.2-qual-fix-6.primary_alt.sorted.vcf "
+        "-l %d -f %d -q %d -o ~/NA12878-novaseq/v1.0.2/result-1.0.2-qual-fix-6.primary_alt.sorted.log" %
+        (MIN_LENGTH, MIN_OFFSET, MIN_MAPQ))
+    print(
+        "\tpython3 ./CC_INS_Caller.py -i /seqslab/atsai/data/NA12878/result.primary_alt.hg19.sorted.bam "
+        "-l %d -f %d -q %d -o /seqslab/atsai/data/NA12878/result.primary_alt.hg19.sorted.vcf" %
         (MIN_LENGTH, MIN_OFFSET, MIN_MAPQ))
 
     return
@@ -110,6 +114,7 @@ def ins_caller(ifn, min_length, min_offset, min_mapq, ofn):
                 num_insertions += 1
 
     print("There are %d completely connected insertions" % len(h_candidates.keys()))
+    h_output = defaultdict(str)
 
     # mapped reads for Hard/Soft-Clipping
     for read in samfile.fetch():
@@ -185,7 +190,14 @@ def ins_caller(ifn, min_length, min_offset, min_mapq, ofn):
                         h_lens[pos] = l
 
     for k in h_candidates:
-        output.write("%s\t%d\t%d\tCompletely Connected\n" % (k, h_lens[k], h_candidates[k]))
+        # output.write("%s\t%d\t%d\tCompletely Connected\n" % (k, h_lens[k], h_candidates[k]))
+        (c, p) = k.split(":")
+        s = "0%s:%10d" % (c, int(p))
+        if len(c) == 2 or len(c) == 5 or c == "X" or c == "chrX" or c == "Y" or c == "chrY":
+            s = "%s:%10d" % (c, int(p))
+        if s not in h_output and "_" not in c:
+            h_output[s] = "%s\t%s\tINS\t.\t.\t.\tPASS\tSVTYPE=INS;SVLEN=%d;READS=%d;CC=CompletelyConnected\n" % (c, p , h_lens[k], h_candidates[k]+1)
+            num_cc_ins += 1
 
     pre_chr = ""
     pre_pos = 0
@@ -205,7 +217,16 @@ def ins_caller(ifn, min_length, min_offset, min_mapq, ofn):
                 if max_l < h_lens[pos]:
                     max_l = h_lens[pos]
                 if h_orientation[pos] >= 3 and max_l >= min_length / 2:
-                    output.write("%s\t%d\t%d\tPartially Connected\n" % (pos, max_l, h_candidates[pos]))
+                    # output.write("%s\t%d\t%d\tPartially Connected\n" % (pos, max_l, h_candidates[pos]))
+                    (c, p) = pos.split(":")
+                    s = "0%s:%10d" % (c, int(p))
+                    if len(c) == 2 or len(c) == 5 or c == "X" or c == "chrX" or c == "Y" or c == "chrY":
+                        s = "%s:%10d" % (c, int(p))
+                    if s not in h_output and "_" not in c:
+                        h_output[s] = "%s\t%s\tINS\t.\t.\t.\tPASS\tSVTYPE=INS;SVLEN=%d;READS=%d;CC=PartiallyConnected\n" \
+                                      % (c, p, max_l, h_candidates[pos] + 1)
+                        num_pc_ins += 1
+
                     h_potential[pos] += 1
                     orientation = 0
                     break
@@ -220,7 +241,15 @@ def ins_caller(ifn, min_length, min_offset, min_mapq, ofn):
 
         if max_l >= min_length / 2 and orientation == 3:
             pos = "%s:%d" % (cur_chr, cur_pos)
-            output.write("%s:%d\t%d\t2\tPartially Connected\n" % (cur_chr, cur_pos, max_l))
+            # output.write("%s:%d\t%d\t2\tPartially Connected\n" % (cur_chr, cur_pos, max_l))
+            s = "0%s:%10d" % (cur_chr, cur_pos)
+            if len(cur_chr) == 2 or len(cur_chr) == 5 or cur_chr == "X" or cur_chr == "chrX" or cur_chr == "Y" or cur_chr == "chrY":
+                s = "%s:%10d" % (cur_chr, cur_pos)
+            if s not in h_output and "_" not in cur_chr:
+                h_output[s] = "%s\t%s\tINS\t.\t.\t.\tPASS\tSVTYPE=INS;SVLEN=%d;READS=%d;CC=PartiallyConnected\n" \
+                              % (cur_chr, cur_pos, max_l, 2)
+                num_pc_ins += 1
+
             h_potential[pos] += 1
             cur_chr = ""
             cur_pos = 0
@@ -233,7 +262,15 @@ def ins_caller(ifn, min_length, min_offset, min_mapq, ofn):
                 max_l = pre_l
             pos1 = "%s:%d" % (cur_chr, pre_pos)
             pos2 = "%s:%d" % (cur_chr, cur_pos)
-            output.write("%s:%d-%d\t%d\tPartially Connected\n" % (cur_chr, pre_pos, cur_pos, max_l))
+            # output.write("%s:%d-%d\t%d\tPartially Connected\n" % (cur_chr, pre_pos, cur_pos, max_l))
+            s = "0%s:%10d" % (cur_chr, pre_pos)
+            if len(cur_chr) == 2 or len(cur_chr) == 5 or cur_chr == "X" or cur_chr == "chrX" or cur_chr == "Y" or cur_chr == "chrY":
+                s = "%s:%10d" % (cur_chr, pre_pos)
+            if s not in h_output and "_" not in cur_chr:
+                h_output[s] = "%s\t%s\tINS\t.\t.\t.\tPASS\tSVTYPE=INS;SVLEN=%d;READS=%d;CC=PartiallyConnected\n" \
+                              % (cur_chr, pre_pos, max_l, 2)
+                num_pc_ins += 1
+
             h_potential[pos1] += 1
             h_potential[pos2] += 1
             cur_chr = ""
@@ -243,16 +280,33 @@ def ins_caller(ifn, min_length, min_offset, min_mapq, ofn):
         else:
             pos = "%s:%d" % (cur_chr, cur_pos)
             if pre_pos != 0 and pre_l >= min_length / 2 and pos not in h_potential:
-                if pre_orientation == 1:
-                    output.write("%s:%d\t%d\tLeft-Clipping\tPotential Detectable\n" % (pre_chr, pre_pos, pre_l))
-                elif pre_orientation == 2:
-                    output.write("%s:%d\t%d\tRight-Clipping\tPotential Detectable\n" % (pre_chr, pre_pos, pre_l))
+                s = "0%s:%10d" % (pre_chr, pre_pos)
+                if len(pre_chr) == 2 or len(pre_chr) == 5 or pre_chr == "X" or pre_chr == "chrX" or pre_chr == "Y" or pre_chr == "chrY":
+                    s = "%s:%10d" % (pre_chr, pre_pos)
+                if s not in h_output and "_" not in pre_chr:
+                    if pre_orientation == 1:
+                        # output.write("%s:%d\t%d\tLeft-Clipping\tPotential Detectable\n" % (pre_chr, pre_pos, pre_l))
+                        h_output[s] = "%s\t%s\tINS\t.\t.\t.\tPASS\tSVTYPE=INS;SVLEN=%d;READS=%d;CC=PotentialDetectable(LeftClipping)\n" \
+                                      % (pre_chr, pre_pos, pre_l, 1)
+                    elif pre_orientation == 2:
+                        # output.write("%s:%d\t%d\tRight-Clipping\tPotential Detectable\n" % (pre_chr, pre_pos, pre_l))
+                        h_output[s] = "%s\t%s\tINS\t.\t.\t.\tPASS\tSVTYPE=INS;SVLEN=%d;READS=%d;CC=PotentialDetectable(LeftClipping)\n" \
+                                      % (pre_chr, pre_pos, pre_l, 1)
+                    num_pd_ins += 1
+
                 h_potential[pos] += 1
 
             pre_chr = cur_chr
             pre_pos = cur_pos
             pre_orientation = cur_orientation
             pre_l = cur_l
+
+    for k in sorted(h_output.keys()):
+        output.write(h_output[k])
+
+    print("%d Completely Connected Insertions" % num_cc_ins)
+    print("%d Partially Connected Insertions" % num_pc_ins)
+    print("%d Potentially Detectable Insertions" % num_pd_ins)
 
     output.close()
     samfile.close()

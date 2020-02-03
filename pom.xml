@@ -126,13 +126,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.github.alexandrnikitin</groupId>
-            <artifactId>bloom-filter_2.11</artifactId>
-            <version>0.11.0+2-a5c4ab93</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/bloom-filter_2.11.jar</systemPath>
-        </dependency>
         <!-- add the following dependency to solve missing or invalid dependency detected while loading class file
         'Logging.class' issue -->
         <dependency>

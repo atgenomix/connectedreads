@@ -178,7 +178,6 @@ ${SPARK}/bin/spark-submit \
 ${SPARK}/bin/spark-submit \
   --master spark://${SPARK_MASTER}:7077 \
   --class com.atgenomix.connectedreads.cli.GraphSeqMain  \
-  --jars /seqslab/NA12878-novaseq-test/bloom-filter_2.11.jar \
   --driver-memory 20g   \
   --executor-cores 10 \
   --executor-memory 100g \
