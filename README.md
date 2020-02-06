@@ -21,6 +21,8 @@ Current human genome sequencing assays in both clinical and research settings pr
 *   [Quick Start](docs/installation.md)
 *   [Usage](docs/usage.md)
 *   [ConnectedReads WGS case study](docs/wgs-case-study.md)
+*   [ConnectedReads on Azure Batch](docs/azure-batch.md)
+*   [ConnectedReads on Google DataProc](docs/dataproc.md)
 *   [(Optional) SV discovery](docs/sv.md)
 
 ## Contributing
