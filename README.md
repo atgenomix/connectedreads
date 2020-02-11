@@ -16,14 +16,16 @@ Current human genome sequencing assays in both clinical and research settings pr
 *   [Apache Spark 2.2.x](https://spark.apache.org/docs/2.2.2/)
 *   [Apache Adam v0.23 (forked and modified by Atgenomix)](https://github.com/AnomeGAP/adam)
 
-### Quick start and Case studies
+### Quick start
 
 *   [Quick Start](docs/installation.md)
 *   [Usage](docs/usage.md)
-*   [ConnectedReads WGS case study](docs/wgs-case-study.md)
 *   [ConnectedReads on Azure Batch](docs/azure-batch.md)
 *   [ConnectedReads on Google DataProc](docs/dataproc.md)
-*   [(Optional) SV discovery](docs/sv.md)
+
+### Case studies
+*   [ConnectedReads WGS case study](docs/wgs-case-study.md)
+*   [(Optional) SV discovery by leverage ConnectedReads](docs/sv.md)
 
 ## Contributing
 
