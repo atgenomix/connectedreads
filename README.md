@@ -2,7 +2,16 @@
 
 ## Background
 
-Current human genome sequencing assays in both clinical and research settings primarily utilize short-read sequencing and apply resequencing pipelines to detect genetic variants. However, structural variant (SV) discovery remains a considerable challenge due to an incomplete reference genome, mapping errors and high sequence divergence. To overcome this challenge, we propose an efficient and effective whole-read assembly workflow with unsupervised graph mining algorithms on an Apache Spark large-scale data processing platform called ConnectedReads. By fully utilizing short-read data information, ConnectedReads is able to generate haplotype-resolved contigs and then streamline downstream pipelines to provide higher-resolution SV discovery than that provided by other methods, especially in N-gap regions. Furthermore, we demonstrate a cost-effective approach by leveraging ConnectedReads to investigate all spectra of genetic changes in population-scale studies.
+Current human genome sequencing assays in both clinical and research settings primarily utilize short-read sequencing 
+and apply resequencing pipelines to detect genetic variants. However, theses mapping-based data analysis pipelines 
+remains a considerable challenge due to an incomplete reference genome, mapping errors and high sequence divergence. 
+
+To overcome this challenge, we propose an efficient and effective whole-read assembly workflow with unsupervised graph 
+mining algorithms on an Apache Spark large-scale data processing platform called ConnectedReads. By fully utilizing 
+short-read data information, ConnectedReads is able to generate assembled contigs and then benefit downstream pipelines 
+to provide higher-resolution SV discovery than that provided by other methods, especially in high diversity against 
+reference and N-gap regions of reference. Furthermore, we demonstrate a cost-effective approach by leveraging 
+ConnectedReads to investigate all spectra of genetic changes in population-scale studies.
 
 ## Documentation
 
