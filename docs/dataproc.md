@@ -1,6 +1,6 @@
 # ConnectedReads Quick Start on Google Cloud
 
-This is an explanation of how to launch DeepVariant-on-Spark in Google Cloud.
+This is an explanation of how to launch ConnectedReads in Google Cloud.
 
 ## Background
 
@@ -21,7 +21,7 @@ for acquiring your SSH Key.
 ```
 gcloud beta dataproc clusters create my-connectedreads \
  --subnet default --zone us-west1-b \
- --num-workers 2 --worker-machine-type n1-highmem-16 \
+ --num-workers 5 --worker-machine-type n1-highmem-32 \
  --image-version 1.2.59-deb9 \
  --initialization-actions gs://seqslab-deepvariant/scripts/initialization-on-dataproc.sh \
  --initialization-action-timeout 20m
