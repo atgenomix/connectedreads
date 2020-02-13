@@ -29,8 +29,8 @@ ConnectedReads to investigate all spectra of genetic changes in population-scale
 
 *   [Quick Start](docs/installation.md)
 *   [Usage](docs/usage.md)
-*   [ConnectedReads on Azure Batch](docs/azure-batch.md)
 *   [ConnectedReads on Google DataProc](docs/dataproc.md)
+*   [ConnectedReads on Azure Batch](docs/azure-batch.md)
 
 ### Case studies
 *   [ConnectedReads WGS case study](docs/wgs-case-study.md)

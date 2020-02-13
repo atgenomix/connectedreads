@@ -5,9 +5,7 @@
 SPARK=/usr/local/spark
 SPARK_MASTER=server
 CONNECTEDREADS_FOLDER=/usr/local/connectedreads
-JAR_FOLDER=/seqslab
-#####################################################
-
+JAR_FOLDER=./your_local_folder
 ## local disk
 ADAM_JAR=${JAR_FOLDER}/adam-assembly-1.0.0-qual.jar
 CONNECTEDREADS_JAR=${JAR_FOLDER}/connectedreads-1.0.0.jar
@@ -24,6 +22,8 @@ SG_CHECKPOINT_FOLDER=${HDFS_OUTPUT}/sg-checkpoint
 HSA_FOLDER=${HDFS_OUTPUT}/hsa
 HSA_CHECKPOINT_FOLDER=${HDFS_OUTPUT}/hsa-checkpoint
 TMP_FOLDER=${HDFS_OUTPUT}/tmp
+#####################################################
+
 
 hadoop fs -rm -r ${CHUNK_FOLDER}
 
