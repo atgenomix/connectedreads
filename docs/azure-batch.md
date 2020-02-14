@@ -12,9 +12,10 @@ Azure Platform.
 
 *   install ansible: `pip install --user ansible`
 *   install aztk: `pip install aztk`
+*   build [ConnectedReads package](docs/installation.md)
+*   build [Adam package (forked and modified by Atgenomix)](https://github.com/AnomeGAP/adam)
 
 ## Launch ConnectedReads via aztk
-
 
 ### Step 1. Create Azure Batch account and Storage account
 
