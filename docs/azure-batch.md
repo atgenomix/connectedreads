@@ -35,10 +35,12 @@ Please specify your JAR files and the FASTQ files you would like to process.
 
 ### Step 5. Upload your FASTQ to Microsoft Data Lake Storage
 
-Please upload your data to Microsoft Data Lake Storage and then add the information 
-into `scripts/run_on_azure.sh`.
+Please upload your data to Microsoft Data Lake Storage.
 
 ### Step 6. submit job by aztk
+
+Please edit the folder information on `scripts/run_on_azure.sh` and then run it.
+
 ```
 cd scripts
 sh ./run_on_azure.sh
