@@ -16,20 +16,31 @@ Azure Platform.
 ## Launch ConnectedReads via aztk
 
 
-### Step1. create Azure Batch account & Storage account
+### Step 1. Create Azure Batch account and Storage account
 
-### Step 2. initalize aztk
+Please create your Azure Batch account and Storage account first. 
+
+### Step 2. Initalize aztk package
 ```
 aztk spark init
 ```
-Step 3. modify configurations for Spark cluster
+### Step 3. Modify configurations for Spark cluster
 ```
 .aztk/secrets.yaml, .aztk/core-site.xml, .aztk/spark-defaults.conf
 ```
-Step 4. edit zjob.yaml
-Step 5. submit job by aztk
+### Step 4. Edit the related configuration file on conf folder
+
+Please specify your JAR files and the FASTQ files you would like to process.
+
+### Step 5. Upload your FASTQ to Microsoft Data Lake Storage
+
+Please upload your data to Microsoft Data Lake Storage and then add the information 
+into `scripts/run_on_azure.sh`.
+
+### Step 6. submit job by aztk
 ```
-aztk spark job submit --id {{ job-id }} --configuration {{ job-yaml-path }}
+cd scripts
+sh ./run_on_azure.sh
 ```
 
 ## Reference

@@ -16,33 +16,38 @@ job:
           # docker_run_options: --shm-size="10g" --device /dev/fuse --privileged --env TEST="test"
 
     spark_configuration:
-        spark_defaults_conf: spark-defaults.data_transformation.conf
+        spark_defaults_conf: spark-defaults.error_correction.conf
         spark_env_sh: spark-env.sh
         core_site_xml: core-site.xml
 
     # an application maps directly to a spark-submit command
     applications:
-      - name: data_transformation
-        application: /${JAR_FOLDER}/adam-assembly-1.0.0-qual.jar
+      - name: error_correction
+        application: /${JAR_FOLDER}/connectedreads-1.0.0.jar
         application_args:
-          - transformAlignments
-          - -force_load_fastq
-          - -parquet_compression_codec
-          - SNAPPY
-          - -tag_reads
-          - -trim_both
-          - -trim_poly_g
-          - -collapse_dup_reads
-          - -filter_lc_reads
-          - -filter_lq_reads
-          - -filter_n
-          - -min_quality
-          - 20
-          - -max_lq_base
-          - 25
-          - -max_N_count
-          - 0
+          - correct
           - ${INPUT_FOLDER}
           - ${OUTPUT_FOLDER}
-
-        main_class: org.bdgenomics.adam.cli.ADAMMain
+          - -keep_err
+          - -pl_batch
+          - 2
+          - -pl_partition
+          - 6
+          - -mlcp
+          - 45
+          - -max_read_length
+          - 160
+          - -mim_err_depth
+          - 40
+          - -min_read_support
+          - 3
+          - -max_correction_ratio
+          - 0.5
+          - -max_err_read
+          - 1
+          - -raw_err_group_len
+          - 1
+          - -raw_err_cutoff
+          - 1
+          - -seperate_err
+        main_class: com.atgenomix.connectedreads.cli.GraphSeqMain
