@@ -24,8 +24,9 @@ HSA_CHECKPOINT_FOLDER=${HDFS_OUTPUT}/hsa-checkpoint
 TMP_FOLDER=${HDFS_OUTPUT}/tmp
 #####################################################
 
-## Step1: Please upload your FASTQ files on Microsoft Data Lake Storage
-#TBD
+## Step1: Read FASTQ files from Microsoft Data Lake Storage and chunk them into small pieces
+
+./scripts/fq_upload.py -1 ${READ1} -2 ${READ2} -o ${CHUNK_FOLDER}
 
 ## Step2: data transformation
 aztk spark job submit --id {{ job-id }} --configuration ./conf/data_transofrmation.yaml
